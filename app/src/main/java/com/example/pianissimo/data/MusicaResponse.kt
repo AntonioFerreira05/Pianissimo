@@ -1,4 +1,6 @@
 package com.example.pianissimo.data
 
-class MusicaResponse {
-}
+data class MusicaResponse(
+    val data: List<Musica>,
+    val timestamp: Long
+)

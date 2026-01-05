@@ -27,44 +27,70 @@ import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import coil3.compose.rememberAsyncImagePainter
 import com.example.pianissimo.MusicaViewModel
+import com.example.pianissimo.data.Musica
 
 @Composable
-fun NoticiasComposable() {
+fun MusicaComposable() {
     val viewModel = hiltViewModel<MusicaViewModel>()
-    val articles = viewModel.getMusica().collectAsLazyPagingItems()
+    val tracks = viewModel.getMusica().collectAsLazyPagingItems()
     val oContexto = LocalContext.current
+
     LazyColumn {
-        items(count = articles.itemCount, key = articles.itemKey { it.url }, contentType = articles.itemContentType { "avsContentType" }) { index ->
-            val item = articles[index]
-            CardMusica(author = item?.author ?: "", content = item?.content ?: "",
-                title = item?.title ?: "", urlToImage = item?.urlToImage ?: "")
+        items(
+            count = tracks.itemCount,
+            key = tracks.itemKey { it.id },
+            contentType = tracks.itemContentType { "trackContentType" }
+        ) { index ->
+            val item = tracks[index]
+            CardMusica(
+                author = item?.user?.name ?: "",
+                content = "Gênero: ${item?.genre ?: "Unknown"} | Plays: ${item?.play_count ?: 0}",
+                title = item?.title ?: "",
+                urlToImage = item?.artwork?.image150 ?: ""
+            )
         }
-        when (articles.loadState.refresh) {
+
+        // Loading / Erro do refresh
+        when (tracks.loadState.refresh) {
             is LoadState.Error -> {
-                // fixme: falta reagir ao erro
-                Toast.makeText(oContexto, "Erro no LoadState refresh: ${(articles.loadState.refresh as LoadState.Error).error.toString()}", Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    oContexto,
+                    "Erro ao atualizar: ${(tracks.loadState.refresh as LoadState.Error).error}",
+                    Toast.LENGTH_LONG
+                ).show()
             }
             is LoadState.Loading -> {
                 item {
-                    Column(modifier = Modifier.fillParentMaxSize(), horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center) {
-                        Text(modifier = Modifier.padding(8.dp), text = "Refresh Loading")
+                    Column(
+                        modifier = Modifier.fillParentMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(modifier = Modifier.padding(8.dp), text = "Carregando músicas...")
                         CircularProgressIndicator(color = Color.Black)
                     }
                 }
             }
             else -> {}
         }
-        when (articles.loadState.append) {
+
+        // Loading / Erro da paginação
+        when (tracks.loadState.append) {
             is LoadState.Error -> {
-                // fixme: falta reagir ao erro
-                Toast.makeText(oContexto, "Erro no LoadState append: ${(articles.loadState.append as LoadState.Error).error.toString()}", Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    oContexto,
+                    "Erro ao carregar mais: ${(tracks.loadState.append as LoadState.Error).error}",
+                    Toast.LENGTH_LONG
+                ).show()
             }
             is LoadState.Loading -> {
                 item {
-                    Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center,
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
                     ) {
-                        Text(text = "Pagination Loading")
+                        Text(text = "Carregando mais músicas...")
                         CircularProgressIndicator(color = Color.Black)
                     }
                 }
@@ -76,17 +102,36 @@ fun NoticiasComposable() {
 
 @Composable
 fun CardMusica(author: String, content: String, title: String, urlToImage: String) {
-    Card(modifier = Modifier.fillMaxWidth().padding(top = 10.dp, start = 12.dp, bottom = 2.dp, end = 12.dp).size(180.dp).clickable {},
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(180.dp)
+            .padding(top = 10.dp, start = 12.dp, bottom = 2.dp, end = 12.dp)
+            .clickable { /* Pode adicionar ação aqui */ },
         elevation = CardDefaults.cardElevation(defaultElevation = 10.dp),
         shape = RoundedCornerShape(corner = CornerSize(8.dp))
     ) {
-        Row(modifier = Modifier.padding(8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-            Image(modifier = Modifier.padding(start = 16.dp).size(60.dp).clip(CircleShape),
-                painter = rememberAsyncImagePainter(urlToImage), contentScale = ContentScale.Crop, contentDescription = "profile")
-            Column(modifier = Modifier.padding(start = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(
+            modifier = Modifier.padding(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                modifier = Modifier
+                    .size(60.dp)
+                    .clip(CircleShape),
+                painter = rememberAsyncImagePainter(urlToImage),
+                contentScale = ContentScale.Crop,
+                contentDescription = "Artwork"
+            )
+
+            Column(
+                modifier = Modifier.padding(start = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
                 Text(text = author, color = Color.Black)
-                Text(text = content, modifier = Modifier.wrapContentSize(), color = Color.Black)
-                Text(text = title,color = Color.Black)
+                Text(text = content, color = Color.Black)
+                Text(text = title, color = Color.Black)
             }
         }
     }
