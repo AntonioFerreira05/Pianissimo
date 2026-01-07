@@ -7,5 +7,6 @@ data class Musica(
     val genre: String?,
     val play_count: Int,
     val user: User,
-    val artwork: Artwork?
+    val artwork: Artwork?,
+    val streamUrl: String? = null
 )
