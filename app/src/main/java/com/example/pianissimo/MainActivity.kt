@@ -15,17 +15,20 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.pianissimo.components.EcraDetalheMusica
 import dagger.hilt.android.AndroidEntryPoint
 import com.example.pianissimo.components.MusicaComposable
 import com.example.pianissimo.ui.theme.PianissimoTheme
@@ -63,7 +66,16 @@ fun ProgramaPrincipal() {
 @Composable
 fun AppNavigation(navController: NavHostController) {
     NavHost(navController, startDestination = Destino.Ecra01.route) {
-        composable(Destino.Ecra01.route) { MusicaComposable() }
+        composable(Destino.Ecra01.route) { MusicaComposable(navController) }
+        composable(
+            "ecraDetalhe"
+        ) { backStackEntry ->
+            val parentEntry = remember(backStackEntry) {
+                navController.getBackStackEntry(Destino.Ecra01.route)
+            }
+            val viewModel: MusicaViewModel = hiltViewModel(parentEntry)
+            EcraDetalheMusica(viewModel = viewModel)
+        }
         composable(Destino.Ecra02.route) { Ecra02() }
         composable(Destino.Ecra03.route) { Ecra03() }
         composable(Destino.Ecra04.route) { Ecra04() }

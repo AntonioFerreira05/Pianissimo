@@ -6,13 +6,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,6 +21,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
@@ -30,31 +31,36 @@ import com.example.pianissimo.MusicaViewModel
 import com.example.pianissimo.data.Musica
 
 @Composable
-fun MusicaComposable() {
-    val viewModel = hiltViewModel<MusicaViewModel>()
+fun MusicaComposable(
+    navController: NavController,
+    viewModel: MusicaViewModel = hiltViewModel()
+) {
     val tracks = viewModel.getMusica().collectAsLazyPagingItems()
-    val oContexto = LocalContext.current
+    val contexto = LocalContext.current
 
     LazyColumn {
         items(
             count = tracks.itemCount,
             key = tracks.itemKey { it.id },
-            contentType = tracks.itemContentType { "trackContentType" }
+            contentType = tracks.itemContentType { "track" }
         ) { index ->
             val item = tracks[index]
-            CardMusica(
-                author = item?.user?.name ?: "",
-                content = "Gênero: ${item?.genre ?: "Unknown"} | Plays: ${item?.play_count ?: 0}",
-                title = item?.title ?: "",
-                urlToImage = item?.artwork?.image150 ?: ""
-            )
+            item?.let { musica ->
+                CardMusica(
+                    musica = musica,
+                    onClick = {
+                        viewModel.selecionarMusica(musica)  // Guarda a música clicada
+                        navController.navigate("ecraDetalhe") // Navega para o segundo ecrã
+                    }
+                )
+            }
         }
 
         // Loading / Erro do refresh
         when (tracks.loadState.refresh) {
             is LoadState.Error -> {
                 Toast.makeText(
-                    oContexto,
+                    contexto,
                     "Erro ao atualizar: ${(tracks.loadState.refresh as LoadState.Error).error}",
                     Toast.LENGTH_LONG
                 ).show()
@@ -78,7 +84,7 @@ fun MusicaComposable() {
         when (tracks.loadState.append) {
             is LoadState.Error -> {
                 Toast.makeText(
-                    oContexto,
+                    contexto,
                     "Erro ao carregar mais: ${(tracks.loadState.append as LoadState.Error).error}",
                     Toast.LENGTH_LONG
                 ).show()
@@ -101,15 +107,18 @@ fun MusicaComposable() {
 }
 
 @Composable
-fun CardMusica(author: String, content: String, title: String, urlToImage: String) {
+fun CardMusica(
+    musica: Musica,
+    onClick: (Musica) -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .height(180.dp)
-            .padding(top = 10.dp, start = 12.dp, bottom = 2.dp, end = 12.dp)
-            .clickable { /* Pode adicionar ação aqui */ },
+            .padding(10.dp)
+            .clickable { onClick(musica) }, // Clique chama onClick
         elevation = CardDefaults.cardElevation(defaultElevation = 10.dp),
-        shape = RoundedCornerShape(corner = CornerSize(8.dp))
+        shape = RoundedCornerShape(8.dp)
     ) {
         Row(
             modifier = Modifier.padding(8.dp),
@@ -120,18 +129,19 @@ fun CardMusica(author: String, content: String, title: String, urlToImage: Strin
                 modifier = Modifier
                     .size(60.dp)
                     .clip(CircleShape),
-                painter = rememberAsyncImagePainter(urlToImage),
+                painter = rememberAsyncImagePainter(musica.artwork?.image150),
                 contentScale = ContentScale.Crop,
                 contentDescription = "Artwork"
             )
-
             Column(
-                modifier = Modifier.padding(start = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                Text(text = author, color = Color.Black)
-                Text(text = content, color = Color.Black)
-                Text(text = title, color = Color.Black)
+                Text(text = musica.user.name, color = Color.Black)
+                Text(
+                    text = "Gênero: ${musica.genre ?: "Unknown"} | Plays: ${musica.play_count ?: 0}",
+                    color = Color.Black
+                )
+                Text(text = musica.title, color = Color.Black)
             }
         }
     }
