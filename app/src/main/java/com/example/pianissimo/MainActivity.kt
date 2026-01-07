@@ -67,20 +67,21 @@ fun ProgramaPrincipal() {
 fun AppNavigation(navController: NavHostController) {
     NavHost(navController, startDestination = Destino.Ecra01.route) {
         composable(Destino.Ecra01.route) { MusicaComposable(navController) }
-        composable(
-            "ecraDetalhe"
-        ) { backStackEntry ->
+
+        composable(Destino.Ecra02.route) { backStackEntry ->
             val parentEntry = remember(backStackEntry) {
                 navController.getBackStackEntry(Destino.Ecra01.route)
             }
             val viewModel: MusicaViewModel = hiltViewModel(parentEntry)
             EcraDetalheMusica(viewModel = viewModel)
         }
-        composable(Destino.Ecra02.route) { Ecra02() }
+
+        // Outros ecrãs
         composable(Destino.Ecra03.route) { Ecra03() }
         composable(Destino.Ecra04.route) { Ecra04() }
         composable(Destino.Ecra05.route) { Ecra05() }
     }
+
 }
 
 @Composable
@@ -97,9 +98,6 @@ fun BottomNavigationBar(navController: NavController, appItems: List<Destino>) {
                 selected = currentRoute == item.route,
                 onClick = {
                     navController.navigate(item.route) {
-                        navController.graph.startDestinationRoute?.let { route ->
-                            popUpTo(route) { saveState = true }
-                        }
                         launchSingleTop = true
                         restoreState = true
                     }

@@ -43,3 +43,4 @@ fun EcraDetalheMusica(viewModel: MusicaViewModel = hiltViewModel()) {
         Text("Nenhuma música selecionada", modifier = Modifier.padding(16.dp))
     }
 }
+

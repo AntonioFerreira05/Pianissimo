@@ -27,6 +27,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import coil3.compose.rememberAsyncImagePainter
+import com.example.pianissimo.Destino
 import com.example.pianissimo.MusicaViewModel
 import com.example.pianissimo.data.Musica
 
@@ -49,8 +50,8 @@ fun MusicaComposable(
                 CardMusica(
                     musica = musica,
                     onClick = {
-                        viewModel.selecionarMusica(musica)  // Guarda a música clicada
-                        navController.navigate("ecraDetalhe") // Navega para o segundo ecrã
+                        viewModel.selecionarMusica(musica)
+                        navController.navigate(Destino.Ecra02.route)
                     }
                 )
             }
@@ -116,7 +117,7 @@ fun CardMusica(
             .fillMaxWidth()
             .height(180.dp)
             .padding(10.dp)
-            .clickable { onClick(musica) }, // Clique chama onClick
+            .clickable { onClick(musica) },
         elevation = CardDefaults.cardElevation(defaultElevation = 10.dp),
         shape = RoundedCornerShape(8.dp)
     ) {

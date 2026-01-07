@@ -16,12 +16,13 @@ import javax.inject.Inject
 class MusicaViewModel @Inject constructor(
     private val repository: MusicaRepository
 ) : ViewModel() {
-    fun getMusica(): Flow<PagingData<Musica>> = repository.getMusica().cachedIn(viewModelScope)
 
     private val _musicaSelecionada = MutableStateFlow<Musica?>(null)
-    val musicaSelecionada: StateFlow<Musica?> get() = _musicaSelecionada
+    val musicaSelecionada: StateFlow<Musica?> = _musicaSelecionada
 
     fun selecionarMusica(musica: Musica) {
         _musicaSelecionada.value = musica
     }
+
+    fun getMusica() = repository.getMusica()
 }
