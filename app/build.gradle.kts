@@ -72,7 +72,6 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
     ksp(libs.hilt.compiler)
-    implementation("com.google.android.exoplayer:exoplayer:2.20.0")
     implementation("androidx.media3:media3-exoplayer:1.1.0")
     implementation("androidx.media3:media3-ui:1.1.0")
 }

@@ -31,6 +31,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.pianissimo.components.EcraDetalheMusica
 import dagger.hilt.android.AndroidEntryPoint
 import com.example.pianissimo.components.MusicaComposable
+import com.example.pianissimo.components.Streamer
 import com.example.pianissimo.ui.theme.PianissimoTheme
 
 @AndroidEntryPoint
@@ -75,9 +76,14 @@ fun AppNavigation(navController: NavHostController) {
             val viewModel: MusicaViewModel = hiltViewModel(parentEntry)
             EcraDetalheMusica(viewModel = viewModel)
         }
+        composable(Destino.Ecra03.route) { backStackEntry ->
+            val parentEntry = remember(backStackEntry) {
+                navController.getBackStackEntry(Destino.Ecra01.route)
+            }
+            val viewModel: MusicaViewModel = hiltViewModel(parentEntry)
 
-        // Outros ecrãs
-        composable(Destino.Ecra03.route) { Ecra03() }
+            Streamer(viewModel = viewModel)
+        }
         composable(Destino.Ecra04.route) { Ecra04() }
         composable(Destino.Ecra05.route) { Ecra05() }
     }

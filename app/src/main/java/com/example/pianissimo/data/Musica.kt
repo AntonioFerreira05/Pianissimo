@@ -8,5 +8,4 @@ data class Musica(
     val play_count: Int,
     val user: User,
     val artwork: Artwork?,
-    val streamUrl: String? = null
 )
